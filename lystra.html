@@ -1,0 +1,424 @@
+<html>
+  <head>
+    <title>Lystra</title>
+    <script>
+      function fetch(path, cb){
+        var ajax = new XMLHttpRequest();
+        ajax.onreadystatechange = function(){
+          if(ajax.readyState == 4){
+            cb(ajax);
+          }
+        };
+        ajax.open('GET', path);
+        ajax.send();
+      }
+
+      function focus_card(card_id, current){
+        //document.getElementById(card_id).focus();
+        lystra_switch(card_id);
+      }
+
+      var cardNames = ['library', 'queue', 'player', 'history'];
+
+      function lystra_switch(chosen){
+        for(var index in cardNames){
+          var card = cardNames[index];
+          var elm = lystra_id(card + '_body');
+          elm.style.display = (card == chosen ? '' : 'none');
+          lystra_selected(card, card == chosen);
+        }
+      }
+
+      //var lystra_selectedpattern = /($| )lystra_selected(^| )/;
+      function lystra_selected(id, selected){
+        var elm = lystra_id('' + id + '_button');
+        lystra_classname(elm, 'lystra_selected', selected);
+      }
+
+      /*function lystra_classname_split(elm, classname, condition){
+        var classes = elm.getAttribute('class');
+        classes = classes || '';
+        classes = classes.split(' ');
+        var index = -1;
+        for(var i=0;i!=classes.length;i++){
+          if(classes[i] == classname){
+            index = i;
+          }
+        }
+        if(condition){
+          if(index != -1){
+            return;
+          } else {
+            classes.push(classname);
+          }
+        } else {
+          if(index != -1){
+            classes.splice(index, 1);
+          } else {
+            return;
+          }
+        }
+        elm.setAttribute('class', lystra_join(classes, ' '));
+      }*/
+
+      function lystra_classname(elm, classname, condition){
+        var classes = elm.getAttribute('class') || '';
+        if(condition){
+          classes += ' ' + classname;
+        } else {
+          classes.replace(new RegExp('( |^)' + classname + '( |$)'), '');
+        }
+        elm.setAttribute('class', classes);
+      }
+
+      function lystra_join(array, delim){
+        if(array.length < 1){
+          return '';
+        }
+        var ret = array[0];
+        for(var i=1;i!=array.length;i++){
+          ret += delim + array[i];
+        }
+        return ret;
+      }
+
+      function lystra_make(tagName, options){
+        var rv = document.createElement(tagName);
+        var parentNode = null;
+        for(var option in options){
+          var value = options[option];
+          if(option == 'text'){
+            rv.innerHTML = value;
+          } else if (option == 'onclick'){
+            rv.onclick = value;
+          } else if(option == 'parent'){
+            parentNode = value;
+          } else {
+            rv.setAttribute(option, value);
+          }
+        }
+        if(parentNode){
+          parentNode.appendChild(rv);
+        }
+        return rv;
+      }
+
+      function lystra_find(selector, elm){
+        var elm = elm || document;
+        var nodes = elm.querySelectorAll(selector);
+        //if(nodes.length){
+          return nodes;
+        //}
+        //return [nodes];
+      }
+
+      function lystra_id(id){
+        return document.getElementById(id);
+      }
+
+      function Playlist(uri){
+        this.uri = uri;
+        this.isPlaylist = true;
+      }
+      function Track(uri){
+        this.uri = uri;
+        this.isPlaylist = false;
+      }
+
+      var mimeToResponseHandlerMap = {
+        'text/html' : function (xhr){
+          var linkpattern = /a\s+href="([^"]+)(\.ogg|\.wav|\.aac|\.mp3|\/)"/g
+          var links = [];
+          var text = xhr.responseText;
+          while(true){
+            var match = linkpattern.exec(text);
+            if(match == null){
+              break;
+            }
+            var href = match[1] + match[2];
+            if(match[2] == "/"){
+              links.push(new Playlist(href));
+            } else {
+              var track = new Track(href);
+              links.push(track);
+            }
+          }
+          return links;
+        }
+      };
+
+      function lystra_toggle_play_pause(){
+        var audio = lystra_id('audio');
+        if(!audio.src){
+          lystra_play_next();
+        }
+        if(audio.paused){
+          audio.play();
+        } else {
+          audio.pause();
+        }
+      }
+
+      function lystra_history_add(uri){
+        var parent = lystra_id('history_body');
+        parent.insertBefore(lystra_make('div', {
+          text : uri,
+          'class': 'track',
+          'data-uri': uri
+        }), parent.firstChild);
+      }
+
+      function lystra_play_next(){
+        var current = lystra_id('audio').src;
+        if(current){
+          lystra_history_add(current);
+        }
+        var tracks = lystra_find('#queue_body .track');
+        if(!tracks){
+          return;
+        }
+        var track = tracks[0];
+        track.parentNode.removeChild(track);
+        var datauri = track.getAttribute('data-uri');
+        lystra_play(new Track(datauri));
+      }
+
+      function lystra_play(track){
+        lystra_id('nowplaying').innerHTML = decodeURI(track.uri);
+        var audio = lystra_id('audio');
+        audio.ondurationchange = lystra_update_progress;
+        audio.src = track.uri;
+        lystra_id('countup').innerHTML = "0";
+        setInterval(lystra_update_progress, 1000);
+        lystra_toggle_play_pause();
+      }
+
+      function lystra_update_progress(){
+        var audio = lystra_id('audio');
+        lystra_id('countdown').innerHTML = lystra_format_seconds(audio.duration);
+        lystra_id('countup').innerHTML = lystra_format_seconds(audio.currentTime);
+      }
+
+      function lystra_format_seconds(time){
+        return String(time).split('.')[0];
+      }
+
+      function lystra_queue(track){
+        lystra_make('div', {
+          text : decodeURI(track.uri),
+          'class': 'track',
+          'data-uri': track.uri,
+          parent: lystra_id('queue_body')
+        });
+        lystra_update_queue_posish();
+      }
+
+      function lystra_update_queue_posish(){
+        var queueTracks = lystra_find('#queue_body .track');
+        var libraryTracks = lystra_find('#library_body .track');
+        for(var i = 0; i != queueTracks.length; i++){
+          var dataUri = queueTracks[i].getAttribute('data-uri');
+          for(var j = 0; j != libraryTracks.length; j++){
+            if(libraryTracks[j].getAttribute('data-uri') == dataUri){
+              lystra_classname(libraryTracks[j], 'queued', true);
+            }
+          }
+        }
+      }
+
+      function lystra_load(){
+        if(!document.querySelectorAll){
+          alert('No querySelectorAll');
+        }
+        /*for(var index in cardNames){
+          var cardName = cardNames[index];
+          var wrapper = lystra_find('#' + cardName + '_wrapper');
+          var body = lystra_template(cardName + '_body_template', {});
+          var model = {
+            body: body != null ? body : '',
+            prev: index == 0 ? cardNames[cardNames.length - 1] : cardNames[Number(index) - 1],
+            name: cardName,
+            next: (index == cardNames.length - 1) ? cardNames[0] : cardNames[Number(index) + 1]
+          };
+          wrapper.innerHTML = lystra_template('card_template', model);
+        }*/
+try {
+        var url = window.location.pathname;
+        var lastslash = url.lastIndexOf('/');
+        url = url.substring(0, lastslash+1);
+
+          lystra_browse(url);
+        } catch (error) {
+          alert(error);
+        }
+      }
+
+      function lystra_browse(url){
+        lystra_switch('library');
+        var libraryBody = lystra_id('library_body');
+        libraryBody.innerHTML = '';
+        var baseUrl = url;
+        fetch(url, function(xhr){
+          var mime = xhr.getResponseHeader('Content-Type');
+          var responseHandler = mimeToResponseHandlerMap[mime];
+          var links = responseHandler(xhr);
+          for(var index in links){
+            var link = links[index];
+            var onclicks = link.isPlaylist ?
+              function(){
+                lystra_browse(this.getAttribute('data-uri'));
+              }: function(){
+                lystra_queue(new Track(this.getAttribute('data-uri')));
+              };
+            lystra_make('div', {
+              text : decodeURI(link.uri),
+              'data-uri': baseUrl + link.uri,
+              onclick : onclicks,
+              'class': 'track',
+              parent: libraryBody
+            });
+          }
+        });
+      }
+
+      function lystra_template(templateID, model){
+        var template = lystra_find("#" + templateID);
+        if(!template){
+          return null;
+        }
+        var text = template.innerHTML;
+        var pattern = /([^{}]*){{(\w+)}}([^{}]*)/g;
+        var rv = text.replace(pattern, function(match, before, variable, after){
+          return before + model[variable] + after;
+        });
+        return rv;
+      }
+    </script>
+    <style>
+      div.card {
+        /*border: 1px black solid;
+        float: left;
+        margin: 10px;
+        padding: 10px;
+        border-radius: 10px;*/
+        width:100%;
+        font-family: sans-serif;
+      }
+      /*div.card:focus {
+        border: 3px blue solid;
+        float: left;
+      }*/
+      div.card_header {
+        text-align: center;
+      }
+      div.card_body {
+        text-align: center;
+        background-color: khaki;
+      }
+      .card_header_button.lystra_selected {
+        font-weight: bold;
+        padding: 7px;
+        padding-bottom: 2px;
+        border-radius: 5px 5px 0px 0px;
+        border-width: 2px;
+        border-color: black;
+        border-style: solid;
+        border-bottom-style: none;
+        background-color: khaki;
+        /*border-bottom: 1px black solid;*/
+      }
+      .card_header_button {
+        font-size: small;
+        margin: 5px;
+        padding: 2px;
+        border-radius: 5px 5px 0px 0px;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+        border-bottom-style: none;
+        background-color: khaki;
+      }
+      .card_header_prev {
+        border-right: 1px grey dotted;
+      }
+      .card_header_next {
+        border-left: 1px grey dotted;
+      }
+      .queued {
+        font-style: italic;
+      }
+      .track {
+        margin: 5px;
+        padding: 5px;
+        border-top: 1px grey dotted;
+      }
+    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body onload="lystra_load()">
+
+    <!--script type="text/x-template" id="card_template">
+      <div id="{{name}}" class="card" tabindex="0" style="display:none">
+      <div class="card_header">
+        <span class="card_header_button card_header_prev"
+              onclick="focus_card('{{prev}}', '{{name}}')">
+            {{prev}}
+        </span>
+        <span class="card_title">{{name}}</span>
+        <span class="card_header_button card_header_next"
+              onclick="focus_card('{{next}}')">
+            {{next}}
+        </span>
+      </div>
+      <div id="{{name}}_body" class="card_body">
+      {{body}}
+      </div>
+    </div>
+    </script>
+
+<script type="text/x-template" id="player_body_template">
+    <div id="nowplaying">Now playing</div>
+    <audio id="audio" onended="lystra_play_next()">
+    </audio>
+    <div>
+      <span id="countup"></span>
+      <button onclick="lystra_toggle_play_pause()">Play/Pause</button>
+      <span id="countdown"></span>
+    </div>
+  </div>
+</script-->
+
+    <!--div id="library_wrapper"></div>
+    <div id="queue_wrapper"></div>
+    <div id="player_wrapper"></div>
+    <div id="history_wrapper"></div-->
+
+      <div class="card" tabindex="0">
+        <div class="card_header">
+          <span id="library_button" class="card_header_button" onclick="lystra_switch('library')">Browse</span>
+          <span id="queue_button" class="card_header_button" onclick="lystra_switch('queue')">Coming up</span>
+          <span id="player_button" class="card_header_button" onclick="lystra_switch('player')">Now Playing</span>
+          <span id="history_button" class="card_header_button" onclick="lystra_switch('history')">Recently Played</span>
+        </div>
+
+      <div id="library_body" class="card_body">
+      </div>
+
+      <div id="queue_body" class="card_body"></div>
+
+      <div id="player_body" class="card_body">
+        <div id="nowplaying"></div>
+          <audio id="audio" onended="lystra_play_next()"></audio>
+         <div>
+         <span id="countup"></span>
+         <button onclick="lystra_toggle_play_pause()">Play/Pause</button>
+         <span id="countdown"></span>
+        </div>
+      </div>
+
+      <div id="history_body"></div>
+  </div>
+
+
+  </body>
+</html>
