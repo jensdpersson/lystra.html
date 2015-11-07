@@ -147,15 +147,16 @@
         }
       };
 
-      function lystra_toggle_play_pause(){
+      function lystra_toggle_play_pause(forcePlay){
         var audio = lystra_id('audio');
         if(!audio.src){
           lystra_play_next();
-        }
-        if(audio.paused){
-          audio.play();
         } else {
-          audio.pause();
+          if(audio.paused || forcePlay){
+            audio.play();
+          } else {
+            audio.pause();
+          }
         }
       }
 
@@ -190,7 +191,7 @@
         audio.src = track.uri;
         lystra_id('countup').innerHTML = "0";
         setInterval(lystra_update_progress, 1000);
-        lystra_toggle_play_pause();
+        lystra_toggle_play_pause(true);
       }
 
       function lystra_update_progress(){
@@ -238,19 +239,7 @@
         if(!document.querySelectorAll){
           alert('No querySelectorAll');
         }
-        /*for(var index in cardNames){
-          var cardName = cardNames[index];
-          var wrapper = lystra_find('#' + cardName + '_wrapper');
-          var body = lystra_template(cardName + '_body_template', {});
-          var model = {
-            body: body != null ? body : '',
-            prev: index == 0 ? cardNames[cardNames.length - 1] : cardNames[Number(index) - 1],
-            name: cardName,
-            next: (index == cardNames.length - 1) ? cardNames[0] : cardNames[Number(index) + 1]
-          };
-          wrapper.innerHTML = lystra_template('card_template', model);
-        }*/
-try {
+        try {
         var url = window.location.pathname;
         var lastslash = url.lastIndexOf('/');
         url = url.substring(0, lastslash+1);
@@ -364,44 +353,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body onload="lystra_load()">
-
-    <!--script type="text/x-template" id="card_template">
-      <div id="{{name}}" class="card" tabindex="0" style="display:none">
-      <div class="card_header">
-        <span class="card_header_button card_header_prev"
-              onclick="focus_card('{{prev}}', '{{name}}')">
-            {{prev}}
-        </span>
-        <span class="card_title">{{name}}</span>
-        <span class="card_header_button card_header_next"
-              onclick="focus_card('{{next}}')">
-            {{next}}
-        </span>
-      </div>
-      <div id="{{name}}_body" class="card_body">
-      {{body}}
-      </div>
-    </div>
-    </script>
-
-<script type="text/x-template" id="player_body_template">
-    <div id="nowplaying">Now playing</div>
-    <audio id="audio" onended="lystra_play_next()">
-    </audio>
-    <div>
-      <span id="countup"></span>
-      <button onclick="lystra_toggle_play_pause()">Play/Pause</button>
-      <span id="countdown"></span>
-    </div>
-  </div>
-</script-->
-
-    <!--div id="library_wrapper"></div>
-    <div id="queue_wrapper"></div>
-    <div id="player_wrapper"></div>
-    <div id="history_wrapper"></div-->
-
-      <div class="card" tabindex="0">
+    <div class="card" tabindex="0">
         <div class="card_header">
           <span id="library_button" class="card_header_button" onclick="lystra_switch('library')">Browse</span>
           <span id="queue_button" class="card_header_button" onclick="lystra_switch('queue')">Coming up</span>
