@@ -14,7 +14,6 @@
       }
 
       function focus_card(card_id, current){
-        //document.getElementById(card_id).focus();
         lystra_switch(card_id);
       }
 
@@ -29,44 +28,17 @@
         }
       }
 
-      //var lystra_selectedpattern = /($| )lystra_selected(^| )/;
       function lystra_selected(id, selected){
         var elm = lystra_id('' + id + '_button');
         lystra_classname(elm, 'lystra_selected', selected);
       }
-
-      /*function lystra_classname_split(elm, classname, condition){
-        var classes = elm.getAttribute('class');
-        classes = classes || '';
-        classes = classes.split(' ');
-        var index = -1;
-        for(var i=0;i!=classes.length;i++){
-          if(classes[i] == classname){
-            index = i;
-          }
-        }
-        if(condition){
-          if(index != -1){
-            return;
-          } else {
-            classes.push(classname);
-          }
-        } else {
-          if(index != -1){
-            classes.splice(index, 1);
-          } else {
-            return;
-          }
-        }
-        elm.setAttribute('class', lystra_join(classes, ' '));
-      }*/
 
       function lystra_classname(elm, classname, condition){
         var classes = elm.getAttribute('class') || '';
         if(condition){
           classes += ' ' + classname;
         } else {
-          classes.replace(new RegExp('( |^)' + classname + '( |$)'), '');
+          classes = classes.replace(new RegExp('( |^)' + classname + '( |$)'), '');
         }
         elm.setAttribute('class', classes);
       }
@@ -106,10 +78,7 @@
       function lystra_find(selector, elm){
         var elm = elm || document;
         var nodes = elm.querySelectorAll(selector);
-        //if(nodes.length){
-          return nodes;
-        //}
-        //return [nodes];
+        return nodes;
       }
 
       function lystra_id(id){
