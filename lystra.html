@@ -2,7 +2,7 @@
   <head>
     <title>Lystra</title>
     <script>
-      function fetch(path, cb){
+      function lystra_fetch(path, cb){
         var ajax = new XMLHttpRequest();
         ajax.onreadystatechange = function(){
           if(ajax.readyState == 4){
@@ -13,8 +13,26 @@
         ajax.send();
       }
 
-      function focus_card(card_id, current){
-        lystra_switch(card_id);
+      function lystra_set_interval(uri){
+        var track = lystra_track(uri);
+        track.interval = setInterval(lystra_update_progress, 1000);
+      }
+
+      function lystra_clear_interval(uri){
+        var track = lystra_track(uri);
+        if(track.interval){
+          clearInterval(track.interval);
+        }
+      }
+
+      var trackary = {};
+      function lystra_track(uri){
+        var track = trackary[uri];
+        if(!track){
+          track = {};
+          trackary[uri] = track;
+        }
+        return track;
       }
 
       var cardNames = ['library', 'queue', 'player', 'history'];
@@ -24,21 +42,20 @@
           var card = cardNames[index];
           var elm = lystra_id(card + '_body');
           elm.style.display = (card == chosen ? '' : 'none');
-          lystra_selected(card, card == chosen);
+          var button = lystra_id(card + '_button');
+          lystra_classname(button, 'lystra_selected', card == chosen);
         }
-      }
-
-      function lystra_selected(id, selected){
-        var elm = lystra_id('' + id + '_button');
-        lystra_classname(elm, 'lystra_selected', selected);
       }
 
       function lystra_classname(elm, classname, condition){
         var classes = elm.getAttribute('class') || '';
+        var regex = new RegExp('( |^)' + classname + '( |$)');
         if(condition){
-          classes += ' ' + classname;
+          if(!regex.test(classes)){
+            classes += ' ' + classname;
+          }
         } else {
-          classes = classes.replace(new RegExp('( |^)' + classname + '( |$)'), '');
+          classes = classes.replace(regex, '');
         }
         elm.setAttribute('class', classes);
       }
@@ -139,7 +156,7 @@
       }
 
       function lystra_play_next(){
-        var current = lystra_id('audio').src;
+        var current = lystra_id('audio').getAttribute('data-uri');
         if(current){
           lystra_history_add(current);
         }
@@ -158,15 +175,24 @@
         var audio = lystra_id('audio');
         audio.ondurationchange = lystra_update_progress;
         audio.src = track.uri;
+        audio.setAttribute('data-uri', track.uri);
         lystra_id('countup').innerHTML = "0";
-        setInterval(lystra_update_progress, 1000);
+        lystra_set_interval(track.uri);
         lystra_toggle_play_pause(true);
       }
 
       function lystra_update_progress(){
         var audio = lystra_id('audio');
-        lystra_id('countdown').innerHTML = lystra_format_seconds(audio.duration);
-        lystra_id('countup').innerHTML = lystra_format_seconds(audio.currentTime);
+
+        var countdown = lystra_format_seconds(audio.duration);
+        var countup = lystra_format_seconds(audio.currentTime);
+
+        lystra_id('countdown').innerHTML = countdown;
+        lystra_id('countup').innerHTML = countup;
+
+        if(countdown == countup){
+          lystra_clear_interval(audio.getAttribute('data-uri'));
+        }
       }
 
       function lystra_format_seconds(time){
@@ -209,10 +235,9 @@
           alert('No querySelectorAll');
         }
         try {
-        var url = window.location.pathname;
-        var lastslash = url.lastIndexOf('/');
-        url = url.substring(0, lastslash+1);
-
+          var url = window.location.pathname;
+          var lastslash = url.lastIndexOf('/');
+          url = url.substring(0, lastslash+1);
           lystra_browse(url);
         } catch (error) {
           alert(error);
@@ -224,7 +249,7 @@
         var libraryBody = lystra_id('library_body');
         libraryBody.innerHTML = '';
         var baseUrl = url;
-        fetch(url, function(xhr){
+        lystra_fetch(url, function(xhr){
           var mime = xhr.getResponseHeader('Content-Type');
           var responseHandler = mimeToResponseHandlerMap[mime];
           var links = responseHandler(xhr);
@@ -262,18 +287,9 @@
     </script>
     <style>
       div.card {
-        /*border: 1px black solid;
-        float: left;
-        margin: 10px;
-        padding: 10px;
-        border-radius: 10px;*/
         width:100%;
         font-family: sans-serif;
       }
-      /*div.card:focus {
-        border: 3px blue solid;
-        float: left;
-      }*/
       div.card_header {
         text-align: center;
       }
@@ -291,7 +307,6 @@
         border-style: solid;
         border-bottom-style: none;
         background-color: khaki;
-        /*border-bottom: 1px black solid;*/
       }
       .card_header_button {
         font-size: small;
@@ -325,9 +340,9 @@
     <div class="card" tabindex="0">
         <div class="card_header">
           <span id="library_button" class="card_header_button" onclick="lystra_switch('library')">Browse</span>
-          <span id="queue_button" class="card_header_button" onclick="lystra_switch('queue')">Coming up</span>
+          <span id="queue_button" class="card_header_button" onclick="lystra_switch('queue')">Queued</span>
           <span id="player_button" class="card_header_button" onclick="lystra_switch('player')">Now Playing</span>
-          <span id="history_button" class="card_header_button" onclick="lystra_switch('history')">Recently Played</span>
+          <span id="history_button" class="card_header_button" onclick="lystra_switch('history')">Recent</span>
         </div>
 
       <div id="library_body" class="card_body">
