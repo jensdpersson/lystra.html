@@ -305,7 +305,7 @@
       div.card_body {
         text-align: center;
         padding-top:10px;
-        background-color: khaki;
+        /*background-color: khaki;*/
       }
       .card_header_button.lystra_selected {
         font-weight: bold;
@@ -336,11 +336,23 @@
         margin: 5px;
         padding: 5px;
         border-top: 1px grey dotted;
+
+        border-radius: 5px 5px 5px 5px;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+        background-color: khaki;
       }
       .playlist {
         margin: 5px;
         padding: 5px;
         border-top: 1px grey dotted;
+
+        border-radius: 5px 5px 5px 5px;
+        border-width: 1px;
+        border-color: black;
+        border-style: solid;
+        background-color: khaki;
       }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -348,17 +360,17 @@
   <body onload="lystra_load()">
     <div class="card" tabindex="0">
         <div class="card_header">
-          <span id="library_button" class="card_header_button" onclick="lystra_switch('library')">Browse</span>
-          <span id="queue_button" class="card_header_button" onclick="lystra_switch('queue')">Queued</span>
-          <span id="player_button" class="card_header_button" onclick="lystra_switch('player')">Now Playing</span>
-          <span id="history_button" class="card_header_button" onclick="lystra_switch('history')">Recent</span>
+          <div id="library_button" class="card_header_button" onclick="lystra_switch('library')">Browse</div>
+          <div id="queue_button" class="card_header_button" onclick="lystra_switch('queue')">Queued</div>
+          <div id="player_button" class="card_header_button" onclick="lystra_switch('player')">Now Playing</div>
+          <div id="history_button" class="card_header_button" onclick="lystra_switch('history')">Recent</div>
         </div>
 
       <div id="library_wrapper">
         <div class="card_header">
-          <span class="card_header_button"
+          <div class="card_header_button"
                 onclick="lystra_queue_all()"
-                id="queue_all_button">Queue tracks</span>
+                id="queue_all_button">Queue tracks</div>
         </div>
         <div id="library_body" class="card_body">
         </div>
