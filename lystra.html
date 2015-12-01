@@ -257,6 +257,7 @@
         var baseUrl = url;
         lystra_fetch(url, function(xhr){
           var mime = xhr.getResponseHeader('Content-Type');
+          mime = mime.split(';')[0];
           var responseHandler = mimeToResponseHandlerMap[mime];
           var links = responseHandler(xhr);
           for(var index in links){
