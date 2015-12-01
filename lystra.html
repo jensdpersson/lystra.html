@@ -113,7 +113,7 @@
 
       var mimeToResponseHandlerMap = {
         'text/html' : function (xhr){
-          var linkpattern = /a\s+href="([^"]+)(\.ogg|\.wav|\.aac|\.mp3|\/)"/g
+          var linkpattern = /a\s+href="([^"]+)(\.ogg|\.wav|\.aac|\.mp3|\.flac|\.m4a|\.wma|\/)"/g
           var links = [];
           var text = xhr.responseText;
           while(true){
