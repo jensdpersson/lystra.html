@@ -247,10 +247,10 @@
       function lystra_expand(expandButton, url){
         lystra_switch('library');
 
-        var queueAllButton = lystra_id('queue_all_button');
-        queueAllButton.onclick = function(){
-            lystra_queue_all(url);
-        };
+        //var queueAllButton = lystra_id('queue_all_button');
+        //queueAllButton.onclick = function(){
+        //    lystra_queue_all(url);
+        //};
 
         var folderContent = expandButton.parentNode.querySelector('.folder_content');
         lystra_display(folderContent, true);
@@ -259,6 +259,12 @@
 
         if(folderContent.getAttribute('data-fetched') == 'true'){
           return;
+        }
+
+        var lastslash = url.lastIndexOf('/', url.length - 2);
+        var parentUri = null;
+        if(lastslash != -1){
+          parentUri = url.slice(0, lastslash + 1);
         }
 
         var baseUrl = url;
@@ -270,6 +276,9 @@
           var links = responseHandler(xhr);
           for(var index in links){
             var link = links[index];
+            if(link.uri == parentUri){
+                continue;
+            }
             var onclick = link.isPlaylist ?
               function(){
                 lystra_expand(this, this.getAttribute('data-uri'));
@@ -277,13 +286,13 @@
                 lystra_queue(new Track(this.getAttribute('data-uri')));
               };
             var cssclass = link.isPlaylist ? 'playlist' : 'track';
-            var titlePrefix = link.isPlaylist ? 'Show contents of "' : 'Queue "';
+            var titlePrefix = link.isPlaylist ? '' : '';
             var wrapper = lystra_make('div', {
               'class': 'folder_wrapper',
               parent: folderContent
             });
             lystra_make('div', {
-              text : titlePrefix + decodeURI(baseUrl + link.uri) + '"',
+              text : titlePrefix + decodeURI(link.uri),
               'data-uri': baseUrl + link.uri,
               onclick : onclick,
               'class': cssclass + ' expand_button',
@@ -291,7 +300,7 @@
             });
             if(link.isPlaylist){
               lystra_make('div', {
-                text : 'Hide contents of "' + decodeURI(baseUrl + link.uri) + '"',
+                text : decodeURI(link.uri),
                 'class': 'playlist collapse_button',
                 onclick : function(){
                   lystra_collapse(this);
@@ -366,13 +375,19 @@
         background-color: khaki;
       }
       .button {
+        font-size: small;
         text-align: center;
         background-color: khaki;
       }
 
       .folder_content {
-        padding-left: 1%;
-        padding-right: 1%;
+        padding-left: 4%;
+        /*padding-right: 0%;*/
+      }
+
+      .folder_wrapper {
+        font-size: small;
+        /*border: 1px dotted grey;*/
       }
 
       .queued {
@@ -389,6 +404,8 @@
         border-style: solid;
         background-color: khaki;
       }
+
+
       .playlist {
         margin: 5px;
         padding: 5px;
@@ -400,7 +417,15 @@
         border-style: solid;
         background-color: khaki;
       }
-    </style>
+
+      .collapse_button  {
+        font-weight: bold;
+        padding: 5px;
+        border: solid 2px black;
+      }
+
+
+      </style>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body onload="lystra_load()">
@@ -413,11 +438,11 @@
         </div>
 
       <div id="library_wrapper">
-        <div class="card_header">
+        <!-- div class="card_header">
           <div class="card_header_button"
                 onclick="lystra_queue_all()"
                 id="queue_all_button">Queue tracks</div>
-        </div>
+        </div -->
         <div id="library_body" class="card_body folder_content">
 
         </div>
