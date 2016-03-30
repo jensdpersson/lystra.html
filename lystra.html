@@ -243,6 +243,9 @@
             text : decodeURI(track.uri),
             'class': 'track',
             'data-uri': track.uri,
+            onclick: function(){
+              lystra_queue(uri);
+            },
             parent: lystra_id('queue_body')
           });
           lystra_classname(track.libraryElement, 'queued', true);
@@ -279,9 +282,6 @@
 
       function lystra_expand(expandButton, url){
         lystra_switch('library');
-
-
-
         var folderContent = expandButton.parentNode.querySelector('.folder_content');
         lystra_display(folderContent, true);
         lystra_display(expandButton.parentNode.querySelector('.collapse_button'), true);
