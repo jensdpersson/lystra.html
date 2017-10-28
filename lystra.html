@@ -10,6 +10,7 @@
           }
         };
         ajax.open('GET', path);
+        ajax.setRequestHeader('Accept', 'text/uri-list, text/html');
         ajax.send();
       }
 
@@ -130,6 +131,23 @@
             }
           }
           return links;
+        },
+        'text/uri-list': function(xhr){
+            var links = [];
+            var lines = xhr.responseText.split('\r\n');
+            for(var index in lines){
+                var line = lines[index];
+                if(line == "" || line == "lystra.html"){
+                  continue;
+                }
+                if(line[line.length - 1] == "/"){
+                  links.push(new Playlist(line));
+                } else {
+                  var track = new Track(line);
+                  links.push(track);
+                }
+            }
+            return links;
         }
       };
 
@@ -279,6 +297,8 @@
           alert(error);
         }
       }
+
+
 
       function lystra_expand(expandButton, url){
         lystra_switch('library');
