@@ -126,6 +126,9 @@
             if(match == null){
               break;
             }
+            if(match[1] == '..'){
+              continue;
+            }
             var href = match[1] + match[2];
             if(match[2] == "/"){
               links.push(new Playlist(href));
