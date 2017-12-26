@@ -265,17 +265,28 @@
           track.queueElement = null;
         } else {
           track.queueElement = lystra_make('div', {
-            text : decodeURI(track.uri),
             'class': 'track',
-            'data-uri': track.uri,
+            'data-uri': track.uri,          
+            parent: lystra_id('queue_body')
+          });
+          
+          lystra_make('span', {
+            text : decodeURI(track.uri),
+            style: 'padding-right: 20px; float:left',
+            parent: track.queueElement
+          });
+
+          lystra_make('button', {
+            text: 'Unqueue',
+            style: 'float:right',
             onclick: function(){
               lystra_queue(uri);
             },
-            parent: lystra_id('queue_body')
+            parent: track.queueElement
           });
+          lystra_make('div', {style:'clear:both', parent:track.queueElement});
           lystra_classname(track.libraryElement, 'queued', true);
         }
-        //lystra_update_queue_posish();
       }
 
       function lystra_load(){
