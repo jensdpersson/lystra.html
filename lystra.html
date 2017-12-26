@@ -284,6 +284,17 @@
             },
             parent: track.queueElement
           });
+
+          lystra_make('button', {
+            text: 'Play Next',
+            style: 'float:right',
+            onclick: function(){
+              var qelm = track.queueElement;
+              qelm.parentNode.insertBefore(qelm, qelm.parentNode.firstChild);
+            },
+            parent: track.queueElement
+          });
+
           lystra_make('div', {style:'clear:both', parent:track.queueElement});
           lystra_classname(track.libraryElement, 'queued', true);
         }
