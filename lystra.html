@@ -475,6 +475,26 @@
         }
       }
 
+      function lystra_shuffle(){
+        var queue_body = lystra_find("#queue_body")[0];
+        var queue_body_parent = queue_body.parentNode;
+        // Detach from DOM for efficiency
+        queue_body_parent.removeChild(queue_body);
+        var limit = queue_body.childNodes.length;
+        while(limit > 0){
+          //Get an index from unprocessed part of list
+          var index = Math.floor(Math.random() * limit);
+          //Grab that element 
+          var elm = queue_body.childNodes[index];
+          //Put it last
+          queue_body.appendChild(elm);
+          //Move limit towards front of list
+          limit--;
+        }
+        // Reattach
+        queue_body_parent.appendChild(queue_body);
+      }
+
     </script>
     <style>
       div.card {
@@ -573,65 +593,68 @@
         </div>
       </div>
 
-      <!--div class="card_header">
-        <div class="card_header_button">
-        <button id="queue_button"
-                class="display_group_tabs"
-                onclick="lystra_switch('#queue_tab, .tab_title', '.display_group_tabs')">Show Queue</button>
-        <span class="display_group_tabs tab_title">Queue</span>
-        <button id="library_button"
-                class="display_group_tabs"
-                onclick="lystra_switch('#library_tab', '.display_group_tabs')">Show Library</button>
-        <span class="display_group_tabs tab_title">Library</span>
-        <button id="history_button"
-                class="display_group_tabs"
-                onclick="lystra_switch('#history_tab', '.display_group_tabs')">Show History</button>
-        <span class="display_group_tabs tab_title">History</span>
-      </div>
-    </div-->
+      
 
-      <div id="queue_tab"
-           class="folder_wrapper" >
-        <div
-             class="card_body playlist expand_button"
-             style="display:none"
-             onclick="lystra_switch('#queue_tab .collapse_button, #queue_body', '#queue_tab .expand_button')">Play Queue</div>
-        <div
-             class="card_body playlist collapse_button"
-             onclick="lystra_switch('#queue_tab .expand_button', '#queue_tab .collapse_button, #queue_body')"
-             >Play Queue</div>
-        <div id="queue_body" data-fetched="true" class="card_body folder_content"></div>
+      <div id="queue_tab" class="folder_wrapper">
+       
+        <div class="playlist card_body">
+            <span>Play Queue</span>
+        <button onclick="lystra_shuffle()" style="float:right">Shuffle</button>
+        <button
+             class="expand_button"
+             style="display:none; float:right"
+             onclick=
+             "lystra_switch('#queue_tab .collapse_button, #queue_body', '#queue_tab .expand_button')">
+             Expand</button>
+        <button
+             class="collapse_button"
+             style="float:right"
+             onclick=
+             "lystra_switch('#queue_tab .expand_button', '#queue_tab .collapse_button, #queue_body')">
+             Collapse</button>
+             <div style="clear:both"></div>
+        </div>
+        <div id="queue_body" data-fetched="true" 
+              class="card_body folder_content"></div>
       </div>
 
       <div id="library_tab"
            class="folder_wrapper">
-        <div
+           <div class="playlist card_body">
+              <span>Library</span>
+        <button
              data-fetched="true"
              id="library_expand_button"
-             class="card_body playlist expand_button"
-             onclick="lystra_switch('#library_collapse_button, #library_body', '#library_expand_button')"
-             
-             nonclick="lystra_expand(this)">Library</div>
-        <div data-fetched="true"
+             style="float:right"
+             class="expand_button"
+             onclick="lystra_switch('#library_collapse_button, #library_body', '#library_expand_button')">
+             Expand</button>
+        <button data-fetched="true"
               id="library_collapse_button"
-             style="display:none"
-             class="card_body playlist collapse_button"
-             onclick="lystra_switch('#library_expand_button', '#library_collapse_button, #library_body')"
-             
-             >Library</div>
+             style="display:none; float:right"
+             class="collapse_button"
+             onclick="lystra_switch('#library_expand_button', '#library_collapse_button, #library_body')">
+             Collapse</button>
+             <div style="clear:both"></div>
+           </div>
         <div id="library_body" class="card_body folder_content">
         </div>
       </div>
 
       <div id="history_wrapper" class="folder_wrapper" data-fetched="true">
-        <div
-          class="card_body playlist expand_button"
-          onclick="lystra_switch('#history_wrapper .collapse_button, #history_body', '#history_wrapper .expand_button')">History</div>
-        <div id="history_button"
-          class="card_body playlist collapse_button"
-          style="display:none"
-          onclick="lystra_switch('#history_wrapper .expand_button', '#history_wrapper .collapse_button, #history_body')">History</div>
-        <div id="history_body" data-fetched="true" class="card_body folder_content"></div>
+          <div class="playlist card_body">
+              <span>Library</span>
+        <button
+          class="expand_button"
+          style="display:none; float:right"
+          onclick="lystra_switch('#history_wrapper .collapse_button, #history_body', '#history_wrapper .expand_button')">Expand</button>
+        <button id="history_button"
+          class="collapse_button"
+          style="float:right"
+          onclick="lystra_switch('#history_wrapper .expand_button', '#history_wrapper .collapse_button, #history_body')">Collapse</button>
+          <div style="clear:both"></div>
+        </div>
+          <div id="history_body" data-fetched="true" class="card_body folder_content"></div>
       </div>
     </div>
   </body>
