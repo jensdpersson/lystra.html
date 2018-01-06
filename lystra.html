@@ -187,7 +187,7 @@
       function lystra_history_add(uri){
         var parent = lystra_id('history_body');
         parent.insertBefore(lystra_make('div', {
-          text : uri,
+          text : decodeURI(uri),
           'class': 'track',
           'data-uri': uri
         }), parent.firstChild);
