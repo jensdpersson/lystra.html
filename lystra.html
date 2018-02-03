@@ -505,6 +505,11 @@
         queue_body_parent.appendChild(queue_body);
       }
 
+      function lystra_clear(){
+        var queue_body = lystra_find("#queue_body")[0];
+        queue_body.innerHTML = "";
+      }
+
     </script>
     <style>
       div.card {
@@ -609,6 +614,7 @@
        
         <div class="playlist card_body">
             <span>Play Queue</span>
+        <button onclick="lystra_clear()" style="float:right">Clear Queue</button>
         <button onclick="lystra_shuffle()" style="float:right">Shuffle</button>
         <button
              class="expand_button"
