@@ -2,6 +2,16 @@
   <head>
     <title>Lystra</title>
     <script>
+
+      function lystra_format_uri(uri) {
+          if(uri){
+            var decoded = decodeURI(uri);
+            return decoded.replace(/\//g, " / ");
+          } else {
+            return "";
+          }
+      }
+
       function lystra_fetch(path, cb){
         var ajax = new XMLHttpRequest();
         ajax.onreadystatechange = function(){
@@ -187,7 +197,7 @@
       function lystra_history_add(uri){
         var parent = lystra_id('history_body');
         parent.insertBefore(lystra_make('div', {
-          text : decodeURI(uri),
+          text : lystra_format_uri(uri),
           'class': 'track',
           'data-uri': uri
         }), parent.firstChild);
@@ -207,7 +217,7 @@
           var audio = lystra_id('audio');
           next = track.getAttribute('data-uri');
         }
-        lystra_id('nowplaying').innerHTML = next ? decodeURI(next) : '';
+        lystra_id('nowplaying').innerHTML = lystra_format_uri(next);
 
         if(next){
           audio.ondurationchange = lystra_update_progress;
@@ -271,7 +281,7 @@
           });
           
           lystra_make('span', {
-            text : decodeURI(track.uri),
+            text : lystra_format_uri(track.uri),
             style: 'padding-right: 20px; float:left',
             parent: track.queueElement
           });
@@ -404,7 +414,7 @@
         });
 
         lystra_make('span', {
-          text : titlePrefix + decodeURI(link.uri),
+          text : titlePrefix + lystra_format_uri(link.uri),
           style: 'padding-right: 20px; float:left',
           parent: playlistElement
         });
