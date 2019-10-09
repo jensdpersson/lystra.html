@@ -608,9 +608,31 @@
         </div>
       </div>
 
-      
+      <div id="library_tab"  style="width:30%;float:left"
+           class="folder_wrapper">
+           <div class="playlist card_body">
+              <span>Library</span>
+        <button
+             data-fetched="true"
+             id="library_expand_button"
+             style="float:right"
+             class="expand_button"
+             onclick="lystra_switch('#library_collapse_button, #library_body', '#library_expand_button')">
+             Expand</button>
+        <button data-fetched="true"
+              id="library_collapse_button"
+             style="display:none; float:right"
+             class="collapse_button"
+             onclick="lystra_switch('#library_expand_button', '#library_collapse_button, #library_body')">
+             Collapse</button>
+             <div style="clear:both"></div>
+           </div>
+        <div id="library_body" class="card_body folder_content">
+        </div>
+      </div>
 
-      <div id="queue_tab" class="folder_wrapper">
+
+      <div id="queue_tab" class="folder_wrapper" style="width:30%;float:left">
        
         <div class="playlist card_body">
             <span>Play Queue</span>
@@ -634,30 +656,8 @@
               class="card_body folder_content"></div>
       </div>
 
-      <div id="library_tab"
-           class="folder_wrapper">
-           <div class="playlist card_body">
-              <span>Library</span>
-        <button
-             data-fetched="true"
-             id="library_expand_button"
-             style="float:right"
-             class="expand_button"
-             onclick="lystra_switch('#library_collapse_button, #library_body', '#library_expand_button')">
-             Expand</button>
-        <button data-fetched="true"
-              id="library_collapse_button"
-             style="display:none; float:right"
-             class="collapse_button"
-             onclick="lystra_switch('#library_expand_button', '#library_collapse_button, #library_body')">
-             Collapse</button>
-             <div style="clear:both"></div>
-           </div>
-        <div id="library_body" class="card_body folder_content">
-        </div>
-      </div>
-
-      <div id="history_wrapper" class="folder_wrapper" data-fetched="true">
+      
+      <div id="history_wrapper" class="folder_wrapper"  style="width:30%;float:left" data-fetched="true">
           <div class="playlist card_body">
               <span>History</span>
         <button
