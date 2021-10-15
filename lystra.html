@@ -512,6 +512,12 @@
 
     </script>
     <style>
+    
+        body, html {
+            margin: 0px;
+            padding: 0px;
+        }
+    
       div.card {
         width:100%;
         font-family: sans-serif;
@@ -556,6 +562,8 @@
 
       .folder_wrapper {
         font-size: small;
+        flex: 1;
+        
         /*border: 1px dotted grey;*/
       }
 
@@ -594,8 +602,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
   </head>
   <body onload="lystra_load()">
-    <div class="card" tabindex="0">
-        <div class="card_header">
+    
+        <div class="card_header" style="">
           <div id="playercontrols" class="card_header_button">
             <audio id="audio" onended="lystra_play_next()"></audio>
             <div>
@@ -608,8 +616,9 @@
         </div>
       </div>
 
-      <div id="library_tab"  style="width:30%;float:left"
-           class="folder_wrapper">
+<div class="card" tabindex="0" style="display: flex; overflow: scroll; scrollbar-width: none; height: 90%">
+
+      <div id="library_tab" class="folder_wrapper">
            <div class="playlist card_body">
               <span>Library</span>
         <button
@@ -632,7 +641,7 @@
       </div>
 
 
-      <div id="queue_tab" class="folder_wrapper" style="width:30%;float:left">
+      <div id="queue_tab" class="folder_wrapper">
        
         <div class="playlist card_body">
             <span>Play Queue</span>
@@ -657,7 +666,7 @@
       </div>
 
       
-      <div id="history_wrapper" class="folder_wrapper"  style="width:30%;float:left" data-fetched="true">
+      <div id="history_wrapper" class="folder_wrapper"  data-fetched="true">
           <div class="playlist card_body">
               <span>History</span>
         <button
